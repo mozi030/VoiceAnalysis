@@ -1,0 +1,32 @@
+package NeuralNetwork;
+
+import java.util.Arrays;
+
+public class NeuralNetwork {
+	final static public int inputNum = 500;
+	final static public String outputs[] = new String[]{"down", "jump", "left", "move", "right", "shoot", "speedup", "up"};
+	public int outputNum;
+	final static public int hiddenLayerNum = 2;
+	public float weight[][][];
+	final static public int affectRange = 5;
+	final static public float weightInitialValue = 0.01f;
+	
+	public NeuralNetwork() {
+		outputNum = outputs.length;
+		weight = new float[hiddenLayerNum + 1][][];
+		for (int i  = 0; i < hiddenLayerNum; i++) {
+			weight[i] = new float[inputNum][inputNum];
+			
+			for (int j = 0; j < inputNum; j++) {
+				int begin = j - affectRange / 2;
+				if (begin < 0) {
+					begin = 0;
+				}
+				int end = j + affectRange / 2;
+				if (end >= inputNum) {
+					end = inputNum - 1;
+				}
+			}
+		}
+	}
+}

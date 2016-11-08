@@ -1,0 +1,9 @@
+package VoiceFileTransform;
+
+import org.omg.CORBA.PRIVATE_MEMBER;
+
+public class VoicePreProcess {
+	static public void main(String[] args) {
+		static private String sourcePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source";
+	}
+}

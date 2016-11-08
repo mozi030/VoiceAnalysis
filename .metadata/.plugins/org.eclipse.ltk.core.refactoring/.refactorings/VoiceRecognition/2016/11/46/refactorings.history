@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 3 elements to &apos;VoiceRecognition/src/VoiceFileTransform2&apos;&#x0A;- Original project: &apos;VoiceRecognition&apos;&#x0A;- Destination element: &apos;VoiceRecognition/src/VoiceFileTransform2&apos;&#x0A;- Original elements:&#x0A;     VoiceFileTransform.FileTransfer.java&#x0A;     VoiceFileTransform.WeChatWavFormat.java&#x0A;     VoiceFileTransform.VoicePreProcess.java" description="Copy compilation units" destination="/src&lt;VoiceFileTransform2" element1="/src&lt;VoiceFileTransform{FileTransfer.java" element2="/src&lt;VoiceFileTransform{WeChatWavFormat.java" element3="/src&lt;VoiceFileTransform{VoicePreProcess.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1478597975324" units="3" version="1.0"/>
+</session>

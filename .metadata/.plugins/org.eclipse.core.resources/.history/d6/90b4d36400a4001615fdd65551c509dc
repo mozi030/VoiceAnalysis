@@ -1,0 +1,16 @@
+package NeuralNetwork;
+
+public class Main {
+	static public void main(String args[]) throws Exception{
+		NeuralNetwork neuralNetwork = new NeuralNetwork();
+		
+		
+		
+		System.out.println();
+	}
+	
+	
+	static public void LoadTestData() throws Exception{
+		String testPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed";
+	}
+}

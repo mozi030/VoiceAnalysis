@@ -1,0 +1,21 @@
+package VoiceFileTransform;
+
+import java.io.File;
+
+public class FileTransfer {
+	static private String folderPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice";
+	static private String sourcePath = folderPath + "/voice_source";
+	static private String outputPath = folderPath + "/voice_output";
+	
+	public static void main(String args[]) {
+		File sourceFolder = new File(sourcePath);
+		for (final File fileEntry : sourceFolder.listFiles()) {
+	        if (fileEntry.getName().charAt(0));
+	    }
+		
+	}
+	
+	public static boolean isNum(char a) {
+		return a >= '0' && a <= '9';
+	}
+}

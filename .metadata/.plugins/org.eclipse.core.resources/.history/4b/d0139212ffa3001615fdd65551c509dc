@@ -1,0 +1,7 @@
+package NeuralNetwork;
+
+public class Main {
+	static public void main(String args[]) {
+		NeuralNetwork neuralNetwork = new NeuralNetwork();
+	}
+}

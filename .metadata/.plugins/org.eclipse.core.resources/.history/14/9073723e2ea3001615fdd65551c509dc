@@ -1,0 +1,82 @@
+package VoiceFileTransform;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.nio.file.Files;
+
+public class FileTransfer {
+	static private String folderPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice";
+	static private String sourcePath = folderPath + "/voice_source2";
+	static private String sourcePath2 = folderPath + "/voice_source3";
+	static private String outputPath = folderPath + "/voice_output";
+	static private String tempPath = folderPath + "/voice_temp";
+	
+	static private String commandBase = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/SILK_SDK_SRC_v1.0.9/SILK_SDK_SRC_FIX_v1.0.9/decoder";
+	static private String commandBase2 = "/usr/local/bin/ffmpeg -f s16le -ar 24k -ac 1 -i";
+	
+	static private index = 0;
+	
+	public static void main(String args[]) throws Exception {
+		File sourceFolder = new File(sourcePath2);
+		for (final File file1 : sourceFolder.listFiles()) {
+	        if (isNum(file1.getName().charAt(0))) {
+//	        	String tempPath = outputPath + "/" + file1.getName();
+//	        	File file4 = new File(tempPath);
+//	        	file4.mkdir();
+	        	for (final File file2 : file1.listFiles()) {
+	        		if (isNum(file2.getName().charAt(0))) {
+//	    	        	tempPath = outputPath + "/" + file1.getName() + "/" + file2.getName();
+//	    	        	file4 = new File(tempPath);
+//	    	        	file4.mkdir();
+	        			for (final File file3 : file2.listFiles()) {
+	        				if (file3.getName().endsWith(".amr")) {
+	        					String pathInSource = sourcePath + "/" + file1.getName() + "/" + file2.getName() + "/" + file3.getName();
+	        					String pathInSource2 = sourcePath2 + "/" + file1.getName() + "/" + file2.getName() + "/" + file3.getName();
+	        					File file4 = new File(pathInSource);
+	        					if (!file4.exists()) {
+		        					byte []bytes = Files.readAllBytes(file3.toPath());
+		        					byte []newBytes = new byte[bytes.length - 1];
+		        					System.arraycopy(bytes, 1, newBytes, 0, bytes.length - 1);
+		        					
+		        					String amrOutputPath = tempPath + "/" + file3.getName();
+		        					FileOutputStream fos = new FileOutputStream(amrOutputPath);
+		        					fos.write(newBytes);
+		        					fos.close();
+		        					
+		        					String pcmFileName = amrOutputPath.substring(0,amrOutputPath.length() - 4) + ".pcm";
+		        					String wavFileName = outputPath + "/" + file3.getName().substring(0,file3.getName().length() - 4) + ".wav";
+		        					
+		        					Runtime rt = Runtime.getRuntime();
+		        					Process pr = rt.exec(commandBase + " " + amrOutputPath + " " + pcmFileName);
+//		        					BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+//		        				    String line = null;
+//		        				     try {
+//		        				        while ((line = input.readLine()) != null)
+//		        				            System.out.println(line);
+//		        				     } catch (IOException e) {
+//		        				            e.printStackTrace();
+//		        				     }
+//		        				     line = null;
+
+		        					rt = Runtime.getRuntime();
+		        					pr = rt.exec(commandBase2 + " " + pcmFileName + " " + wavFileName);
+	        					}
+	        					
+	        				}
+	        			}
+	        		}
+	        	}
+	        }
+	    }
+		
+	}
+	
+	public static boolean isNum(char a) {
+		return a >= '0' && a <= '9';
+	}
+}

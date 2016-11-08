@@ -1,0 +1,156 @@
+package VoiceFileTransform;
+
+import java.io.File;
+import java.nio.file.Files;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioFormat.Encoding;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+
+public class VoicePreProcess {
+	static private String sourcePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source";
+
+	static public void main(String[] args) throws Exception {
+		File sourceFolder = new File(sourcePath);
+
+		for (final File file1 : sourceFolder.listFiles()) {
+			if (isChar(file1.getName().charAt(0))) {
+				for (final File file2 : file1.listFiles()) {
+					if (isChar(file2.getName().charAt(0))) {
+					}
+				}
+			}
+		}
+	}
+
+	static public boolean isChar(char a) {
+		return (a >= 'a' && a <= 'z') || (a >= 'A' && a <= 'Z');
+	}
+	
+	static public WeChatWavFormat readAndCheckFile(File file2) throws Exception{
+
+		WeChatWavFormat wavFormat = new WeChatWavFormat();
+		
+//		AudioInputStream in = AudioSystem.getAudioInputStream(file2);
+//		AudioFormat audioFormat = in.getFormat();
+//
+//		System.out.println(audioFormat.getSampleRate());
+//		System.out.println(audioFormat.getSampleSizeInBits());
+//		System.out.println(audioFormat.getChannels());
+//		System.out.println(audioFormat.getFrameSize());
+//		System.out.println(audioFormat.getFrameRate());
+//		Encoding encoding = audioFormat.getEncoding();
+//		System.out.println();
+
+		byte[] bytes = Files.readAllBytes(file2.toPath());
+//		System.out.println(bytes.length);
+
+
+		char char1, char2, char3, char4;
+		char1 = (char)(int)bytes[0];
+		char2 = (char)(int)bytes[1];
+		char3 = (char)(int)bytes[2];
+		char4 = (char)(int)bytes[3];
+//		System.out.println(char1 + "" + char2 + "" + char3 + "" + char4);
+		if (!(char1 + "" + char2 + "" + char3 + "" + char4).equals("RIFF")) {
+			throw new Exception("file format wrong RIFF");
+		}
+		wavFormat.RIFF = new byte[4];
+		System.arraycopy(bytes, 0, wavFormat.RIFF, 0, 4);
+		
+		int rifflength = 
+				(bytes[7] << 24) & 0xff000000 | 
+				(bytes[6] << 16) & 0x00ff0000 | 
+				(bytes[5] << 8)  & 0x0000ff00 | 
+				(bytes[4] << 0)  & 0x000000ff;
+//		System.out.println("rifflength: " + rifflength);
+		wavFormat.riffSize = rifflength;
+
+		char1 = (char)(int)bytes[8];
+		char2 = (char)(int)bytes[9];
+		char3 = (char)(int)bytes[10];
+		char4 = (char)(int)bytes[11];
+//		System.out.println(char1 + "" + char2 + "" + char3 + "" + char4);
+		if (!(char1 + "" + char2 + "" + char3 + "" + char4).equals("fmt ")) {
+			throw new Exception("file format wrong WAVE");
+		}
+		wavFormat.WAVE = new byte[4];
+		System.arraycopy(bytes, 8, wavFormat.WAVE, 0, 4);
+
+		char1 = (char)(int)bytes[12];
+		char2 = (char)(int)bytes[13];
+		char3 = (char)(int)bytes[14];
+		char4 = (char)(int)bytes[15];
+		System.out.println(char1 + "" + char2 + "" + char3 + "" + char4);
+
+		int formatlength = 
+				(bytes[19] << 24) & 0xff000000 | 
+				(bytes[18] << 16) & 0x00ff0000 | 
+				(bytes[17] << 8)  & 0x0000ff00 | 
+				(bytes[16] << 0)  & 0x000000ff;
+		System.out.println("formatlength: " + formatlength);
+
+		int type = 
+				(bytes[21] << 8)  & 0x0000ff00 | 
+				(bytes[20] << 0)  & 0x000000ff;
+		System.out.println("type: " + type);
+
+		int channelNum = 
+				(bytes[23] << 8)  & 0x0000ff00 | 
+				(bytes[22] << 0)  & 0x000000ff;
+//		System.out.println("channelNum: " + channelNum);
+		
+		int samplingRate = 
+				(bytes[27] << 24) & 0xff000000 | 
+				(bytes[26] << 16) & 0x00ff0000 | 
+				(bytes[25] << 8)  & 0x0000ff00 | 
+				(bytes[24] << 0)  & 0x000000ff;
+//		System.out.println("samplingRate: " + samplingRate);
+		
+		int check = 
+				(bytes[31] << 24) & 0xff000000 | 
+				(bytes[30] << 16) & 0x00ff0000 | 
+				(bytes[29] << 8)  & 0x0000ff00 | 
+				(bytes[28] << 0)  & 0x000000ff;
+//		System.out.println("check: " + check);
+
+		int BitsPerSample = 
+				(bytes[35] << 8)  & 0x0000ff00 | 
+				(bytes[34] << 0)  & 0x000000ff;
+//		System.out.println("BitsPerSample: " + BitsPerSample);
+		
+		if (Math.abs(1.0 * samplingRate * BitsPerSample * channelNum / 8 - check) > 1e-3) {
+			throw new Exception("file format wrong");
+		}
+		
+//		char1 = (char)(int)bytes[36];
+//		char2 = (char)(int)bytes[37];
+//		char3 = (char)(int)bytes[38];
+//		char4 = (char)(int)bytes[39];
+//		System.out.println(char1 + "" + char2 + "" + char3 + "" + char4);
+//		
+//		int dataSize = 
+//				(bytes[43] << 24) & 0xff000000 | 
+//				(bytes[42] << 16) & 0x00ff0000 | 
+//				(bytes[41] << 8)  & 0x0000ff00 | 
+//				(bytes[40] << 0)  & 0x000000ff;
+//		System.out.println("dataSize: " + dataSize);
+		
+		char1 = (char)(int)bytes[70];
+		char2 = (char)(int)bytes[71];
+		char3 = (char)(int)bytes[72];
+		char4 = (char)(int)bytes[73];
+//		System.out.println(char1 + "" + char2 + "" + char3 + "" + char4);
+		if (!(char1 + "" + char2 + "" + char3 + "" + char4).equals("data")) {
+			throw new Exception("file format wrong data");
+		}
+		
+		int dataSize = 
+				(bytes[77] << 24) & 0xff000000 | 
+				(bytes[76] << 16) & 0x00ff0000 | 
+				(bytes[75] << 8)  & 0x0000ff00 | 
+				(bytes[74] << 0)  & 0x000000ff;
+//		System.out.println("dataSize: " + dataSize);
+	}
+}

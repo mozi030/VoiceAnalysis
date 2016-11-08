@@ -1,0 +1,9 @@
+package VoiceFileTransform;
+
+public class VoicePreProcess {
+	static private String sourcePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source";
+	
+	static public void main(String[] args) throws Exception{
+		
+	}
+}

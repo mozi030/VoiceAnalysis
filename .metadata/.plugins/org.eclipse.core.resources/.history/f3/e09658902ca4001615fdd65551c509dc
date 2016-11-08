@@ -1,0 +1,53 @@
+package NeuralNetwork;
+
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+
+public class Main {
+	static public void main(String args[]) throws Exception{
+		NeuralNetwork neuralNetwork = new NeuralNetwork();
+		
+		ArrayList<Integer[]> allTrainData = LoadTrainData();
+		neuralNetwork.TrainNetwork(allTrainData);
+		
+		
+		System.out.println();
+	}
+	
+	
+	static public ArrayList<Integer[]> LoadTrainData() throws Exception{
+		ArrayList<Data> allTrainData = new ArrayList<>();
+		
+		String testPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed";
+		File testFolder = new File(testPath);
+		for (File file1 : testFolder.listFiles()) {
+			for (File file2 : file1.listFiles()) {
+				String fileName = testPath + "/" + file1.getName() + "/" + file2.getName() + "/selected_samples.txt";
+				File file3 = new File(fileName);
+				if (!file3.exists()) {
+					throw new Exception("!file3.exists()");
+				}
+				
+				int[] currentData = new int[500];
+				int index = 0;
+				BufferedReader bufferedReader = new BufferedReader(new FileReader(file3));
+				String line = null;
+				while ((line = bufferedReader.readLine()) != null) {
+					int currentNum = Integer.parseInt(line.replace("\n", ""));
+					currentData[index++] = currentNum;
+				}
+				if (index != 500) {
+					throw new Exception("index != 500");
+				}
+				Data data = new Data();
+				data.dataList = currentData;
+				data.result = file1.getName();
+				allTrainData.add(data);
+			}
+		}
+		return allTrainData;
+	}
+}

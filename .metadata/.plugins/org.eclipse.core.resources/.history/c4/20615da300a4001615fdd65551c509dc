@@ -1,0 +1,24 @@
+package NeuralNetwork;
+
+import java.io.File;
+
+public class Main {
+	static public void main(String args[]) throws Exception{
+		NeuralNetwork neuralNetwork = new NeuralNetwork();
+		
+		
+		
+		System.out.println();
+	}
+	
+	
+	static public void LoadTestData() throws Exception{
+		String testPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed";
+		File testFolder = new File(testPath);
+		for (File file1 : testFolder.listFiles()) {
+			for (File file2 : file1.listFiles()) {
+				
+			}
+		}
+	}
+}

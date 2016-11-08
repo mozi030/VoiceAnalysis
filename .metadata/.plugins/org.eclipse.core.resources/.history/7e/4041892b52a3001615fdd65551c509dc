@@ -1,0 +1,95 @@
+package VoiceFileTransform;
+
+import java.io.File;
+import java.nio.file.Files;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioFormat.Encoding;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+
+public class VoicePreProcess {
+	static private String sourcePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source";
+
+	static public void main(String[] args) throws Exception {
+		File sourceFolder = new File(sourcePath);
+
+		for (final File file1 : sourceFolder.listFiles()) {
+			if (isChar(file1.getName().charAt(0))) {
+				for (final File file2 : file1.listFiles()) {
+					if (isChar(file2.getName().charAt(0))) {
+						AudioInputStream in = AudioSystem.getAudioInputStream(file2);
+						AudioFormat audioFormat = in.getFormat();
+
+						System.out.println(audioFormat.getSampleRate());
+						System.out.println(audioFormat.getSampleSizeInBits());
+						System.out.println(audioFormat.getChannels());
+						System.out.println(audioFormat.getFrameSize());
+						System.out.println(audioFormat.getFrameRate());
+						Encoding encoding = audioFormat.getEncoding();
+						System.out.println();
+
+						byte[] bytes = Files.readAllBytes(file2.toPath());
+						System.out.println(bytes.length);
+
+						int rifflength = 
+								(bytes[7] << 24) & 0xff000000 | 
+								(bytes[6] << 16) & 0x00ff0000 | 
+								(bytes[5] << 8)  & 0x0000ff00 | 
+								(bytes[4] << 0)  & 0x000000ff;
+						System.out.println("rifflength: " + rifflength);
+
+						int formatlength = 
+								(bytes[19] << 24) & 0xff000000 | 
+								(bytes[18] << 16) & 0x00ff0000 | 
+								(bytes[17] << 8)  & 0x0000ff00 | 
+								(bytes[16] << 0)  & 0x000000ff;
+						System.out.println("formatlength: " + formatlength);
+
+						int type = 
+								(bytes[21] << 8)  & 0x0000ff00 | 
+								(bytes[20] << 0)  & 0x000000ff;
+						System.out.println("type: " + type);
+
+						int channelNum = 
+								(bytes[23] << 8)  & 0x0000ff00 | 
+								(bytes[22] << 0)  & 0x000000ff;
+						System.out.println("channelNum" + channelNum);
+						
+						int samplingRate = 
+								(bytes[27] << 24) & 0xff000000 | 
+								(bytes[26] << 16) & 0x00ff0000 | 
+								(bytes[25] << 8)  & 0x0000ff00 | 
+								(bytes[24] << 0)  & 0x000000ff;
+						System.out.println("samplingRate: " + samplingRate);
+						
+						int check = 
+								(bytes[31] << 24) & 0xff000000 | 
+								(bytes[30] << 16) & 0x00ff0000 | 
+								(bytes[29] << 8)  & 0x0000ff00 | 
+								(bytes[28] << 0)  & 0x000000ff;
+						System.out.println("check: " + check);
+
+						int BitsPerSample = 
+								(bytes[35] << 8)  & 0x0000ff00 | 
+								(bytes[34] << 0)  & 0x000000ff;
+						System.out.println("BitsPerSample" + BitsPerSample);
+						
+						int dataSize = 
+								(bytes[43] << 24) & 0xff000000 | 
+								(bytes[42] << 16) & 0x00ff0000 | 
+								(bytes[41] << 8)  & 0x0000ff00 | 
+								(bytes[40] << 0)  & 0x000000ff;
+						System.out.println("dataSize: " + dataSize);
+
+						System.out.println();
+					}
+				}
+			}
+		}
+	}
+
+	static public boolean isChar(char a) {
+		return (a >= 'a' && a <= 'z') || (a >= 'A' && a <= 'Z');
+	}
+}

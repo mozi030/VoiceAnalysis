@@ -1,0 +1,151 @@
+package VoiceFileTransform;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.nio.file.Files;
+
+import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioFormat.Encoding;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+
+public class VoicePreProcess {
+	static private String sourcePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source";
+
+	static private String outputPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed";
+	
+	static public void main(String[] args) throws Exception {
+		File sourceFolder = new File(sourcePath);
+
+		for (final File file1 : sourceFolder.listFiles()) {
+			if (isChar(file1.getName().charAt(0))) {
+				for (final File file2 : file1.listFiles()) {
+					if (isChar(file2.getName().charAt(0))) {
+						WeChatWavFormat wavFormat = WeChatWavFormat.readAndCheckFile(file2);
+
+						
+						
+//						String tempPath = outputPath + "/" + file1.getName() + "/" + file2.getName();
+						
+//						BufferedWriter bufferedWriter =  new BufferedWriter(new FileWriter(new File(tempPath.substring(0, tempPath.length() - 4) + ".txt")));
+//						String outputString = "";
+//						for (int i = 0; i < wavFormat.samples.length; i++) {
+//							outputString += wavFormat.samples[i] + "\n";
+//						}
+//						bufferedWriter.write(outputString);
+//						bufferedWriter.close();
+						
+//						int temp[] = new int[wavFormat.samples.length];
+//						System.arraycopy(wavFormat.samples, 0, temp, 0, wavFormat.samples.length);
+//						wavFormat.samples = new int [wavFormat.samples.length * 10];
+//						int i = 0;
+//						for (i = 0;i < temp.length - 1; i++) {
+//							int difference = temp[i + 1] - temp[i];
+//							for (int j = 0; j < 10; j++) {
+//								wavFormat.samples[i * 10 + j] = (int)(temp[i] + 1.0 * j / 10 * difference);
+//							}
+//						}
+//						for (int j = 0; j < 10; j++) {
+//							wavFormat.samples[i * 10 + j] = temp[i];
+//						}
+						
+						drawGraph(wavFormat, file1, file2, 1);
+						wavFormat = preprocessing(wavFormat);
+						drawGraph(wavFormat, file1, file2, 2);
+						
+//						byte[] currentBytes = WeChatWavFormat.transferWavFormatToBytes(wavFormat);
+//    					FileOutputStream fos = new FileOutputStream(tempPath);
+//    					fos.write(currentBytes);
+//    					fos.close();
+    					
+    					System.out.println();
+					}
+				}
+			}
+		}
+	}
+
+	static public void drawGraph(WeChatWavFormat wavFormat, File file1, File file2, int graphNum) throws Exception{
+
+		String newFolderName = outputPath + "/" + file1.getName() + "/" + file2.getName();
+		newFolderName = newFolderName.substring(0, newFolderName.length() - 4);
+		File file3 = new File(newFolderName);
+		if (!file3.exists() || !file3.isDirectory()) {
+			file3.mkdir();
+		}
+		
+		int []lineReadings = new int []{-32768, 32768};
+		
+		String fileName = newFolderName + "/" + graphNum+ ".jpg";
+		int width = 3000;
+		int height = 7000;
+		BufferedImage bimg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2d = (Graphics2D) bimg.getGraphics();
+		g2d.setBackground(Color.WHITE);
+		g2d.clearRect(0, 0, width, height);
+
+		g2d.setColor(Color.BLUE);
+		for (int i = lineReadings[0]; i <= lineReadings[1]; i += 2048) {
+			g2d.setStroke(new BasicStroke(1));
+			int y = -i / 10 + height / 2;
+			g2d.drawLine(0, y, width, y);
+			g2d.setStroke(new BasicStroke(5));
+			g2d.drawString("" + i, 0, y);
+		}
+
+		for (int i = 0; i < wavFormat.samples.length;i ++) {
+			g2d.setColor(Color.BLACK);
+			g2d.setStroke(new BasicStroke(10));
+			int x = (int)(1.0 * (i + 1) / wavFormat.samples.length * width);
+			int y = -wavFormat.samples[i] / 10 + height / 2;
+			g2d.fillOval(x, y, 10, 10);
+			if (i != wavFormat.samples.length - 1) {
+				int nextX = (int)(1.0 * (i + 1 + 1) / wavFormat.samples.length * width);
+				int nextY = -wavFormat.samples[i + 1] / 10 + height / 2;
+				g2d.drawLine(x, y, nextX, nextY);
+			}
+		}
+
+		ImageIO.write(bimg, "JPG", new FileOutputStream(fileName));
+	}
+	
+	static public WeChatWavFormat preprocessing(WeChatWavFormat wavFormat) throws Exception{
+//		int []temp = new int[wavFormat.samples.length];
+//		System.arraycopy(wavFormat.samples, 0, temp, 0, wavFormat.samples.length);
+//		int begin = 0;
+//		int end = wavFormat.samples.length - 1;
+//		while (Math.abs(temp[begin]) < 10240) {
+//			begin++;
+//		}
+//		while (Math.abs(temp[end]) < 10240) {
+//			end--;
+//		}
+//		if (begin > end) {
+//			throw new Exception("begin > end");
+//		}
+//		
+//		wavFormat.samples = new int [end - begin + 1];
+//		System.arraycopy(temp, begin, wavFormat.samples, 0, wavFormat.samples.length);
+//		return wavFormat;
+		
+
+		int []temp = new int[wavFormat.samples.length];
+		System.arraycopy(wavFormat.samples, 0, temp, 0, wavFormat.samples.length);
+
+		wavFormat.samples = new int [1000];
+		System.arraycopy(temp, 6000, wavFormat.samples, 0, wavFormat.samples.length);
+		return wavFormat;
+	}
+	
+	static public boolean isChar(char a) {
+		return (a >= 'a' && a <= 'z') || (a >= 'A' && a <= 'Z');
+	}
+	
+}

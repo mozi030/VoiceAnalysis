@@ -1,0 +1,8 @@
+package NeuralNetwork;
+
+import java.util.Map;
+
+public class Node {
+	public float output;
+	public Map<Integer, Float>lastNodeNumsAndWeight;
+}

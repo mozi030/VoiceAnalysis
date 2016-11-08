@@ -1,0 +1,14 @@
+package NeuralNetwork;
+
+import java.util.Map;
+
+public class Node {
+	public float data;
+	public Map<Integer, Float>lastNodeIndexAndWeight;
+	public Map<Integer, Float>nextNodeIndexAndWeight;
+	public float cita;
+	public float error;
+	
+	
+	
+}

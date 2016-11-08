@@ -1,0 +1,23 @@
+package VoiceFileTransform;
+
+import java.io.File;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+
+public class VoicePreProcess {
+	static private String sourcePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source";
+	
+	static public void main(String[] args) throws Exception{
+		File sourceFolder = new File(sourcePath);
+
+		for (final File file1 : sourceFolder.listFiles()) {
+			for (final File file2 : file1.listFiles()) {
+				AudioInputStream in = AudioSystem.getAudioInputStream(file2);
+				AudioFormat audioFormat = in.getFormat();
+				System.out.println(audioFormat.getSampleRate());
+			}
+		}
+	}
+}
