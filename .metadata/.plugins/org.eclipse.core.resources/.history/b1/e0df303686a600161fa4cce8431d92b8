@@ -63,7 +63,7 @@ public class MFCCData {
 				}
 				distance = calculateDistance(processedData, shortData);
 			} else {
-				distance = calculateDistance(longData, shortData);
+				
 			}
 			if (minDistance == -1) {
 				minDistance = distance;

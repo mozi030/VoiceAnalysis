@@ -19,7 +19,7 @@ public class MFCCClassify {
 			Arrays.asList("down", "jump", "left", "move", "right", "shoot", "speedup", "up"));
 	static public ArrayList<MFCCData> allData = new ArrayList<>();
 
-	static int K = 3;
+	static int K = 11;
 
 	static public void main(String[] args) throws Exception {
 		getData();
@@ -69,10 +69,10 @@ public class MFCCClassify {
 				}
 			}
 			if (MaxIndex == mfccData1.result) {
-				System.out.println("good " + "MaxIndex: " + MaxIndex + " mfccData1.result: " + mfccData1.result);
+				System.out.println("good " + "MaxIndex: " + MaxIndex + "mfccData1.result: " + mfccData1.result);
 				right++;
 			} else {
-				System.out.println("bad " + "MaxIndex: " + MaxIndex + " mfccData1.result: " + mfccData1.result);
+				System.out.println("bad " + "MaxIndex: " + MaxIndex + "mfccData1.result: " + mfccData1.result);
 			}
 		}
 		System.out.println("right: " + (1.0 * right / allData.size()));

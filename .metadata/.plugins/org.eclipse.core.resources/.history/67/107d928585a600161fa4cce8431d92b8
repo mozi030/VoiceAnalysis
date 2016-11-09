@@ -9,7 +9,7 @@ public class MFCCData {
 	public int result;
 
 	public double getDifference(MFCCData otherMFCCData) throws Exception {
-		double[][] other = otherMFCCData.data;
+		double[][]other = otherMFCCData.data;
 		if (data[0].length != other[0].length) {
 			throw new Exception("data[0].length != other.length");
 		}
@@ -25,7 +25,7 @@ public class MFCCData {
 		}
 
 		int lengthDifference = longData.length - shortData.length;
-		// divide longData into lengthDifference blocks
+		//divide longData into lengthDifference blocks
 		// damp lengthDifference data from longData
 		double sliceLength = 1.0 * longData.length / lengthDifference;
 
@@ -33,38 +33,31 @@ public class MFCCData {
 		double minDistance = -1;
 
 		for (int j = 0; j < 10; j++) {
-			double distance = -1;
-			if (shortData.length != longData.length) {
-				double[][] processedData = new double[shortData.length][];
-				int processedDataIndex = 0;
-				int usedLength = 0;
-				for (int block = 0; block < lengthDifference; block++) {
-					int finalLength = 0;
-					double temp = ((block + 1) * sliceLength - usedLength);
-					if (Math.abs(usedLength + temp - longData.length) < 1e-9) {
-						finalLength = longData.length - usedLength;
-					} else {
-						finalLength = (int) (temp);
-						if (usedLength + finalLength > longData.length) {
-							finalLength = longData.length - usedLength;
-						}
-					}
-					int missdataIndex = usedLength + random.nextInt(finalLength);
-					for (int i = usedLength; i < usedLength + finalLength; i++) {
-						if (i == missdataIndex) {
-							continue;
-						}
-						processedData[processedDataIndex++] = longData[i];
-					}
-					usedLength += finalLength;
+			double[][] processedData = new double[shortData.length][];
+			int processedDataIndex = 0;
+			int usedLength = 0;
+			for (int block = 0; block < lengthDifference; block++) {
+				int finalLength = (int)((block + 1) * sliceLength - usedLength);
+				double temp = ((block + 1) * sliceLength - usedLength);
+				if (Math.abs(usedLength + temp - longData.length) < 1e-9) {
+					finalLength = longData.length - usedLength;
 				}
-				if (processedData[processedData.length - 1] == null) {
-					throw new Exception("processedData[processedData.length - 1] == null");
+				if (usedLength + finalLength > longData.length) {
+					finalLength = longData.length - usedLength;
 				}
-				distance = calculateDistance(processedData, shortData);
-			} else {
-				distance = calculateDistance(longData, shortData);
+				int missdataIndex = usedLength + random.nextInt(finalLength);
+				for (int i = usedLength; i < usedLength + finalLength; i++) {
+					if (i == missdataIndex) {
+						continue;
+					}
+					processedData[processedDataIndex++] = longData[i];
+				}
+				usedLength += finalLength;
 			}
+			if (processedData[processedData.length - 1] == null) {
+				throw new Exception("processedData[processedData.length - 1] == null");
+			}
+			double distance = calculateDistance(processedData, shortData);
 			if (minDistance == -1) {
 				minDistance = distance;
 			} else if (minDistance > distance) {

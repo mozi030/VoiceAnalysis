@@ -19,7 +19,7 @@ public class MFCCClassify {
 			Arrays.asList("down", "jump", "left", "move", "right", "shoot", "speedup", "up"));
 	static public ArrayList<MFCCData> allData = new ArrayList<>();
 
-	static int K = 3;
+	static int K = 1;
 
 	static public void main(String[] args) throws Exception {
 		getData();
@@ -69,10 +69,10 @@ public class MFCCClassify {
 				}
 			}
 			if (MaxIndex == mfccData1.result) {
-				System.out.println("good " + "MaxIndex: " + MaxIndex + " mfccData1.result: " + mfccData1.result);
+				System.out.println("good " + "MaxIndex: " + MaxIndex + "mfccData1.result: " + mfccData1.result);
 				right++;
 			} else {
-				System.out.println("bad " + "MaxIndex: " + MaxIndex + " mfccData1.result: " + mfccData1.result);
+				System.out.println("bad " + "MaxIndex: " + MaxIndex + "mfccData1.result: " + mfccData1.result);
 			}
 		}
 		System.out.println("right: " + (1.0 * right / allData.size()));
@@ -91,6 +91,9 @@ public class MFCCClassify {
 						while (true) {
 							String filePath = sourcePath + "/" + file1.getName() + "/" + file2.getName() + "/"
 									+ fileIndex + ".txt";
+							if (fileIndex == 68) {
+								fileIndex = fileIndex;
+							}
 							File file = new File(filePath);
 							if (!file.exists()) {
 								break;
@@ -100,7 +103,7 @@ public class MFCCClassify {
 						mfccData.data = new double[fileIndex][];
 						for (int i = 0; i < fileIndex; i++) {
 							String filePath = sourcePath + "/" + file1.getName() + "/" + file2.getName() + "/"
-									+ i + ".txt";
+									+ fileIndex + ".txt";
 							File file = new File(filePath);
 							BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 							String line = null;
@@ -108,7 +111,6 @@ public class MFCCClassify {
 							while ((line = bufferedReader.readLine()) != null) {
 								currentData.add(Double.parseDouble(line));
 							}
-							bufferedReader.close();
 							mfccData.data[i] = new double[currentData.size()];
 							for (int j = 0; j < mfccData.data[i].length; j++) {
 								mfccData.data[i][j] = currentData.get(j);

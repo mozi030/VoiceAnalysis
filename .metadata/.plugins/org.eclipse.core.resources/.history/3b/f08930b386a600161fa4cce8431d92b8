@@ -19,7 +19,7 @@ public class MFCCClassify {
 			Arrays.asList("down", "jump", "left", "move", "right", "shoot", "speedup", "up"));
 	static public ArrayList<MFCCData> allData = new ArrayList<>();
 
-	static int K = 3;
+	static int K = 11;
 
 	static public void main(String[] args) throws Exception {
 		getData();
