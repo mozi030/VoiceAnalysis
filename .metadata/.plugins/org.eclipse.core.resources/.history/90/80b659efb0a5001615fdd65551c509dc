@@ -1,0 +1,85 @@
+package VoiceFileTransform2;
+
+public class Test {
+	
+	static public void main(String [] args) {
+		String filePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed/down/msg_001519110516c26f03d0772106/selected_samples.txt";
+	}
+	
+	
+	/**
+	 * 一维快速傅里叶变换
+	 * 
+	 * @param values
+	 *            一维复数集数组
+	 * @return 傅里叶变换后的数组集
+	 */
+	static public Complex[] fft(Complex[] values) {
+		int n = values.length;
+		int r = (int) (Math.log10(n) / Math.log10(2)); // 求迭代次数r
+		Complex[][] temp = new Complex[r + 1][n]; // 计算过程的临时矩阵
+		Complex w = new Complex(); // 权系数
+		temp[0] = values;
+		int x1, x2; // 一对对偶结点的下标值
+		int p, t; // p表示加权系数Wpn的p值, t是重新排序后对应的序数值
+		for (int l = 1; l <= r; l++) {
+			if (l != r) {
+				for (int k = 0; k < n; k++) {
+					if (k < n / Math.pow(2, l)) {
+						x1 = k;
+						x2 = x1 + (int) (n / Math.pow(2, l));
+					} else {
+						x2 = k;
+						x1 = x2 - (int) (n / Math.pow(2, l));
+					}
+					p = getWeight(k, l, r);
+					// xi(j) = temp[i-1][x1] + Wpn* temp[i-1][x2];
+					w.setX(Math.cos(-2 * Math.PI * p / n));
+					w.setY(Math.sin(-2 * Math.PI * p / n));
+					temp[l][k] = temp[l - 1][x1].add(w.mult(temp[l - 1][x2]));
+
+				}
+			} else {
+				for (int k = 0; k < n / 2; k++) {
+					x1 = 2 * k;
+					x2 = 2 * k + 1;
+					// System.out.println("x1:" + x1 + " x2:" + x2);
+					t = reverseRatio(2 * k, r);
+					p = t;
+					w.setX(Math.cos(-2 * Math.PI * p / n));
+					w.setY(Math.sin(-2 * Math.PI * p / n));
+					temp[l][t] = temp[l - 1][x1].add(w.mult(temp[l - 1][x2]));
+					t = reverseRatio(2 * k + 1, r);
+					p = t;
+					w.setX(Math.cos(-2 * Math.PI * p / n));
+					w.setY(Math.sin(-2 * Math.PI * p / n));
+					temp[l][t] = temp[l - 1][x1].add(w.mult(temp[l - 1][x2]));
+				}
+			}
+		}
+		return temp[r];
+	}
+	
+	static private int reverseRatio(int k, int r) {  
+	    int n = 0;  
+	    StringBuilder sb = new StringBuilder(Integer.toBinaryString(k));  
+	    StringBuilder sb2 = new StringBuilder("");  
+	    if(sb.length()<r) {  
+	        n = r-sb.length();  
+	        for(int i=0; i<n; i++) {  
+	            sb.insert(0, "0");  
+	        }  
+	    }  
+	      
+	    for(int i=0; i<sb.length(); i++) {  
+	        sb2.append(sb.charAt(sb.length()-i-1));  
+	    }         
+	    return Integer.parseInt(sb2.toString(), 2);  
+	}  
+	
+	static private int getWeight(int k, int l, int r) {  
+	    int d = r-l;    //位移量  
+	    k = k>>d;       
+	    return reverseRatio(k, r);  
+	}  
+}

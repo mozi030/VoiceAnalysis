@@ -1,0 +1,7 @@
+package VoiceFileTransform2;
+
+public class FFT {
+	static public int[] fft(int[]samples) {
+		
+	}
+}

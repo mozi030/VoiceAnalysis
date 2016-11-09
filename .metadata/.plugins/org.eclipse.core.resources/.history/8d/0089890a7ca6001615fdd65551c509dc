@@ -1,0 +1,78 @@
+package MFCCClassify;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class MFCCClassify {
+
+	static private String sourcePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed4";
+
+	final static public ArrayList<String> outputs = new ArrayList<String>(
+			Arrays.asList("down", "jump", "left", "move", "right", "shoot", "speedup", "up"));
+	static public ArrayList<MFCCData>allData = new ArrayList<>();
+	
+	static public void main(String[] args) throws Exception{
+		getData();
+		
+		for (int i = 0; i < allData.size(); i++) {
+			Map<Integer, Double>indexAndDiffernce = new HashMap<>();
+			MFCCData mfccData1 = allData.get(i);
+			for (int j = 0; j < allData.size() && j != i; j++) {
+				MFCCData mfccData2 = allData.get(j);
+				double difference = mfccData1.getDifference(mfccData2);
+				indexAndDiffernce.put(j, difference);
+			}
+			
+			
+		}
+	}
+	
+	static public void getData() {
+		File sourceFolder = new File(sourcePath);
+
+		for (final File file1 : sourceFolder.listFiles()) {
+			if (checkIsChar(file1.getName().charAt(0))) {
+				for (final File file2 : file1.listFiles()) {
+					if (checkIsChar(file2.getName().charAt(0))) {
+						MFCCData mfccData = new MFCCData();
+						
+						int fileIndex = 0;
+						while(true) {
+							String filePath = sourcePath + "/" + file1.getName() + "/" + file2.getName() + "/" + fileIndex + ".txt";
+							File file = new File(filePath);
+							if (!file.exists()) {
+								break;
+							}
+						}
+						mfccData.data = new double[fileIndex][];
+						for (int i = 0; i < fileIndex;i++) {
+							String filePath = sourcePath + "/" + file1.getName() + "/" + file2.getName() + "/" + fileIndex + ".txt";
+							File file = new File(filePath);
+							BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+							String line = null;
+							ArrayList<Double>currentData = new ArrayList<>();
+							while((line = bufferedReader.readLine()) != null) {
+								currentData.add(Double.parseDouble(line));
+							}
+							mfccData.data[i] = new double[currentData.size()];
+							for (int j = 0; j < mfccData.data[i].length; j++) {
+								mfccData.data[i][j] = currentData.get(j);
+							}
+						}
+						mfccData.result = outputs.indexOf(file1.getName());
+						allData.add(mfccData);
+					}
+				}
+			}
+		}
+	}
+	
+	static public boolean checkIsChar(char a) {
+		return (a >= 'a' && a <= 'z') || (a >= 'A' && a <= 'Z');
+	}
+}

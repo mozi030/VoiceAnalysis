@@ -1,0 +1,17 @@
+package MFCCClassify;
+
+public class MFCCData {
+	public double[][]data;
+	public int result;
+	
+	public double getDifference(double[][]other) throws Exception{
+		if (data[0].length != other.length) {
+			throw new Exception("data[0].length != other.length");
+		}
+		
+		double[][]longData = null;
+		double[][]shortData = null;
+		
+		
+	}
+}

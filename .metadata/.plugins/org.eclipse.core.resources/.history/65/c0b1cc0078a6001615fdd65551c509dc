@@ -1,0 +1,10 @@
+package MFCCClassify;
+
+public class MFCCData {
+	public double[][]data;
+	public int result;
+	
+	public double getDifference(double[][]other) {
+		
+	}
+}

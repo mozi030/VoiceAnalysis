@@ -1,6 +1,0 @@
-package NeuralNetwork;
-
-public class NeuralNetwork {
-	int inputNum = 500;
-	
-}

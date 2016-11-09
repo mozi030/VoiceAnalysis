@@ -1,6 +1,6 @@
 package NeuralNetwork;
 
 public class Data {
-	int[] dataList;
-	int result;
+	public int[] dataList;
+	public int result;
 }

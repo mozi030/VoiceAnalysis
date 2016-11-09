@@ -1,0 +1,8 @@
+package MFCCClassify;
+
+public class MFCCData {
+	public double[][]data;
+	public int result;
+	
+	
+}

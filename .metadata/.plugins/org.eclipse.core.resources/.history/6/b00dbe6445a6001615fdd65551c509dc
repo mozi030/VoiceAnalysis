@@ -1,0 +1,192 @@
+package VoiceFileTransform2;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import NeuralNetwork.Data;
+
+public class Classify {
+	static private String sourcePath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed2";
+
+	final static public ArrayList<String> outputs = new ArrayList<String>(
+			Arrays.asList("down", "jump", "left", "move","shoot", "speedup", "up"));
+
+	public static Map<String, ArrayList<Double>> fractionMap = new HashMap<>();
+	public static Map<ArrayList<ArrayList<Integer>>, Integer> dataAndLabel = new HashMap<>();
+	public static double[] indexAndDifference = new double[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	static public void main(String[] args) throws Exception {
+		fractionMap.put("down", new ArrayList<Double>(Arrays.asList(0.9, 0.1)));
+		fractionMap.put("jump", new ArrayList<Double>(Arrays.asList(0.9, 0.1)));
+		fractionMap.put("left", new ArrayList<Double>(Arrays.asList(0.9, 0.1)));
+		fractionMap.put("move", new ArrayList<Double>(Arrays.asList(0.9, 0.1)));
+		fractionMap.put("right", new ArrayList<Double>(Arrays.asList(0.9, 0.1)));
+		fractionMap.put("shoot", new ArrayList<Double>(Arrays.asList(0.9, 0.1)));
+		fractionMap.put("speedup", new ArrayList<Double>(Arrays.asList(0.9, 0.1)));
+		fractionMap.put("up", new ArrayList<Double>(Arrays.asList(0.9, 0.1)));
+
+		train();
+
+		test();
+	}
+
+	static public void train() throws Exception {
+		File sourceFolder = new File(sourcePath);
+
+		for (final File file1 : sourceFolder.listFiles()) {
+			if (checkIsChar(file1.getName().charAt(0))) {
+				for (final File file2 : file1.listFiles()) {
+					if (checkIsChar(file2.getName().charAt(0))) {
+						String folderName = sourcePath + "/" + file1.getName() + "/" + file2.getName();
+						int fileIndex = 0;
+						ArrayList<ArrayList<Integer>> trainData = new ArrayList<>();
+						while (true) {
+							String fileName = folderName + "/" + fileIndex + ".txt";
+							File file3 = new File(fileName);
+							if (!file3.exists()) {
+								break;
+							}
+							BufferedReader bufferedReader = new BufferedReader(new FileReader(file3));
+							String line = null;
+							ArrayList<Integer> datas = new ArrayList<>();
+							while ((line = bufferedReader.readLine()) != null) {
+								int data = Integer.parseInt(line);
+								datas.add(data);
+							}
+							trainData.add(datas);
+
+							fileIndex++;
+						}
+						dataAndLabel.put(trainData, outputs.indexOf(file1.getName()));
+					}
+				}
+			}
+		}
+	}
+
+	static public void test() throws Exception {
+		File sourceFolder = new File(sourcePath);
+
+		ArrayList<Data> allTestData = new ArrayList<>();
+
+		for (final File file1 : sourceFolder.listFiles()) {
+			if (checkIsChar(file1.getName().charAt(0))) {
+				for (final File file2 : file1.listFiles()) {
+					if (checkIsChar(file2.getName().charAt(0))) {
+						String fileName = sourcePath + "/" + file1.getName() + "/" + file2.getName() + "/all.txt";
+						BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(fileName)));
+						String line = null;
+						Data currentData = new Data();
+						currentData.dataList = new int[512];
+						int dataIndex = 0;
+						while ((line = bufferedReader.readLine()) != null) {
+							int data = Integer.parseInt(line);
+							currentData.dataList[dataIndex] = data;
+							currentData.result = outputs.indexOf(file1.getName());
+							dataIndex++;
+						}
+						allTestData.add(currentData);
+					}
+				}
+			}
+		}
+
+		int k = 1;
+		int right = 0;
+		for (Data currentData : allTestData) {
+			Map<ArrayList<ArrayList<Integer>>, Double> dataAndDifference = new HashMap<>();
+			for (Map.Entry<ArrayList<ArrayList<Integer>>, Integer> entry : dataAndLabel.entrySet()) {
+				ArrayList<ArrayList<Integer>> currentTrainData = entry.getKey();
+				int currentTrainDataLabel = entry.getValue();
+
+				ArrayList<Double> fraction = fractionMap.get(outputs.get(currentTrainDataLabel));
+				int usedLength = 0;
+				int supplementLength = (int) (0.05 * currentData.dataList.length);
+				double totalDifference = 0f;
+				int usedTimes = 0;
+				for (int i = 0; i < fraction.size(); i++) {
+					double currentFraction = fraction.get(i);
+					int currentLength = (int) (1.0 * currentData.dataList.length * currentFraction);
+					if (currentFraction > 0.0) {
+						usedTimes++;
+						int finalLength = currentLength + supplementLength;
+						if (finalLength + usedLength > currentData.dataList.length) {
+							finalLength = currentData.dataList.length - usedLength;
+						}
+						int[] fractionData = new int[finalLength];
+						System.arraycopy(currentData.dataList, usedLength, fractionData, 0, fractionData.length);
+
+						totalDifference += calculateDifference(fractionData, currentTrainData.get(i));
+					}
+					usedLength += currentLength;
+				}
+
+				if (totalDifference > 0) {
+					dataAndDifference.put(currentTrainData, totalDifference);
+				}
+			}
+
+			int[] outputScore = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+			List<Map.Entry<ArrayList<ArrayList<Integer>>, Double>> entryList = new ArrayList<>(
+					dataAndDifference.entrySet());
+			Collections.sort(entryList, new Comparator<Map.Entry<ArrayList<ArrayList<Integer>>, Double>>() {
+				@Override
+				public int compare(Map.Entry<ArrayList<ArrayList<Integer>>, Double> entry1,
+						Map.Entry<ArrayList<ArrayList<Integer>>, Double> entry2) {
+					return (int) (entry1.getValue() - entry2.getValue());
+				}
+			});
+			for (int i = 0; i < k; i++) {
+				Map.Entry<ArrayList<ArrayList<Integer>>, Double> entry = entryList.get(i);
+				ArrayList<ArrayList<Integer>> entryData = entry.getKey();
+				int label = dataAndLabel.get(entryData);
+				outputScore[label]++;
+			}
+			double MaxScore = outputScore[0];
+			int MaxIndex = 0;
+			for (int i = 1; i < outputScore.length; i++) {
+				if (MaxScore < outputScore[i]) {
+					MaxScore = outputScore[i];
+					MaxIndex = i;
+				}
+			}
+			if (MaxIndex == currentData.result) {
+				System.out.println("good " + "MaxIndex: " + MaxIndex + "currentData.result: " + currentData.result);
+				right++;
+			} else {
+				System.out.println("bad " + "MaxIndex: " + MaxIndex + "currentData.result: " + currentData.result);
+			}
+		}
+		System.out.println("right: " + (1.0 * right / allTestData.size()));
+	}
+
+	static public boolean checkIsChar(char a) {
+		return (a >= 'a' && a <= 'z') || (a >= 'A' && a <= 'Z');
+	}
+
+	static public double calculateDifference(int[] fractionData, ArrayList<Integer> currentFractionData)
+			throws Exception {
+		double sum = 0.0;
+		if (fractionData.length != currentFractionData.size()) {
+			throw new Exception("fractionData.length != currentFractionData.size()");
+		}
+		for (int i = 0; i < fractionData.length; i++) {
+			double temp = fractionData[i] - currentFractionData.get(i);
+			double previousValue = sum;
+			sum += temp * temp;
+			if(sum < previousValue) {
+				throw new Exception("sum < previousValue");
+			}
+		}
+		return (double) ((sum) / fractionData.length);
+	}
+}

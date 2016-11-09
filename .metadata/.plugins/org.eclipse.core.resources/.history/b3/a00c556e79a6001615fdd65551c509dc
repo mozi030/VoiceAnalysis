@@ -1,0 +1,27 @@
+package MFCCClassify;
+
+public class MFCCData {
+	public double[][]data;
+	public int result;
+	
+	public double getDifference(double[][]other) throws Exception{
+		if (data[0].length != other[0].length) {
+			throw new Exception("data[0].length != other.length");
+		}
+		
+		double[][]longData = null;
+		double[][]shortData = null;
+		if (data.length > other.length) {
+			longData = data;
+			shortData = other;
+		} else {
+			longData = other;
+			shortData = data;
+		}
+		
+		int lengthDifference = longData.length - shortData.length;
+		//damp lengthDifference data from longData
+		int sliceLength = longData.length / lengthDifference;
+		
+	}
+}

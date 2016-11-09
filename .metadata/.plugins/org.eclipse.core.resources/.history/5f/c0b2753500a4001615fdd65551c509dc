@@ -1,8 +1,0 @@
-package NeuralNetwork;
-
-public class Main {
-	static public void main(String args[]) throws Exception{
-		NeuralNetwork neuralNetwork = new NeuralNetwork();
-		System.out.println();
-	}
-}

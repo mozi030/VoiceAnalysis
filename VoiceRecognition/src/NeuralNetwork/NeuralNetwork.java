@@ -18,22 +18,24 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class NeuralNetwork {
-	final static public String resultPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/result";
+	final static public String resultPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/result2";
 
-	static public int inputNum = 500;
-	final static public ArrayList<String> outputs = new ArrayList<String>(
-			Arrays.asList("down", "jump", "left", "move", "right", "shoot", "speedup", "up"));
+	static public int inputNum = 512;
+	// final static public ArrayList<String> outputs = new ArrayList<String>(
+	// Arrays.asList("down", "jump", "left", "move", "right", "shoot",
+	// "speedup", "up"));
+	final static public ArrayList<String> outputs = new ArrayList<String>(Arrays.asList("speedup", "up"));
 	public static Node allNodes[][];
 
 	static public int hiddenLayerNum = 2;
-	final static public int affectRange = 5;
+	final static public int affectRange = inputNum;
 	final static public double weightInitialValue = 0.01;
 	static public double learningRate = 0.01;
 
 	public static long initialTime = 0;
 
 	public static Random random = new Random();
-	final public static int dataNum = 100;
+	final public static int dataNum = 60;
 
 	public NeuralNetwork() throws Exception {
 		allNodes = new Node[hiddenLayerNum + 2][];
@@ -116,6 +118,7 @@ public class NeuralNetwork {
 			for (int i = 0; i < outputs.size(); i++) {
 				error[i] = 0;
 			}
+			int right = 0;
 			ArrayList<Data> currentDataArray = getRandomData(allTrainData);
 			for (Data currentData : currentDataArray) {
 				for (int i = 0; i < inputNum; i++) {
@@ -123,23 +126,31 @@ public class NeuralNetwork {
 				}
 				int evaluatedIndex = ForwardFeed();
 
+				double currentError[] = new double[2];
 				for (int i = 0; i < outputs.size(); i++) {
 					if (i == currentData.result) {
+						currentError[i] += 1 - allNodes[hiddenLayerNum + 1][i].data;
 						error[i] += 1 - allNodes[hiddenLayerNum + 1][i].data;
 					} else {
+						currentError[i] += -allNodes[hiddenLayerNum + 1][i].data;
 						error[i] += -allNodes[hiddenLayerNum + 1][i].data;
 					}
 				}
+//				System.out.println("error[0]: " + Math.abs(currentError[0]) + " error[1]: "
+//						+ Math.abs(currentError[1]) + " "
+//						+ (evaluatedIndex == currentData.result));
 
 				if (evaluatedIndex == currentData.result) {
-					count++;
-					if (count >= 100) {
-						printWeight();
-						System.out
-								.println("using time: " + (System.currentTimeMillis() - initialTime) / 1000 + "second");
-						break;
-					}
-					System.out.print("" + count + " ");
+					// count++;
+					// if (count >= 100) {
+					// printWeight();
+					// System.out
+					// .println("using time: " + (System.currentTimeMillis() -
+					// initialTime) / 1000 + "second");
+					// break;
+					// }
+					// System.out.print("" + count + " ");
+					right++;
 				} else {
 					count = 0;
 				}
@@ -156,8 +167,8 @@ public class NeuralNetwork {
 
 			double errorSum = 0;
 			for (int i = 0; i < outputs.size(); i++) {
-				errorSum += error[i];
 				error[i] /= currentDataArray.size();
+				errorSum += Math.abs(error[i]);
 			}
 			errorSum = Math.abs(errorSum / outputs.size());
 
@@ -166,14 +177,18 @@ public class NeuralNetwork {
 			// + " evaluated: " + allNodes[hiddenLayerNum +
 			// 1][evaluatedIndex].data + " result: "
 			// + (evaluatedIndex == currentData.result) + " error: " + e);
-			System.out.println("\nerrorSum: " + errorSum);
+			System.out.println("right: " + 1.0 * right / currentDataArray.size() + " errorSum: " + errorSum);
 
-			if (errorSum < 0.01) {
-				System.out.println("good");
-				learningRate = 0.001;
-			} else {
-				learningRate = 0.01;
-			}
+			// if (errorSum < 0.01) {
+			// System.out.println("good");
+			// learningRate = 0.001;
+			// } else {
+			// learningRate = 0.01;
+			// }
+
+//			if (count2 == 200) {
+//				learningRate = 0.001;
+//			}
 
 			BackPropagation(error);
 
@@ -350,15 +365,14 @@ public class NeuralNetwork {
 				layerIndex++;
 			}
 			hiddenLayerNum = layerIndex - 2;
-			
-			
+
 			allNodes = new Node[hiddenLayerNum + 2][];
 			allNodes[0] = new Node[inputNum];
 			// first layer, the input layer
 			JSONObject layerObject = mainObject.getJSONObject("" + 0);
 			for (int j = 0; j < inputNum; j++) {
 				JSONObject nodeObject = layerObject.getJSONObject("" + j);
-				
+
 				allNodes[0][j] = new Node();
 				allNodes[0][j].lastNodeIndexAndWeight = null;
 				int begin = j - affectRange / 2;
@@ -438,8 +452,7 @@ public class NeuralNetwork {
 				allNodes[hiddenLayerNum + 1][j].data = nodeObject.getDouble("data");
 				allNodes[hiddenLayerNum + 1][j].cita = nodeObject.getDouble("cita");
 			}
-			
-			
+
 			int right = 0;
 			for (Data currentData : allTrainData) {
 				for (int i = 0; i < inputNum; i++) {

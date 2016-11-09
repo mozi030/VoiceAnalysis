@@ -2,8 +2,10 @@ package NeuralNetwork;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -11,12 +13,12 @@ import java.util.Random;
 public class Main {
 	static public void main(String args[]) throws Exception {
 		ArrayList<Data> allTrainData = LoadTrainData();
-		
+
 		NeuralNetwork neuralNetwork = new NeuralNetwork();
 		neuralNetwork.TrainNetwork(allTrainData);
 
-//		NeuralNetwork.testNeuralNetwork(allTrainData);
-		
+		// NeuralNetwork.testNeuralNetwork(allTrainData);
+
 		// System.out.println();
 	}
 
@@ -24,9 +26,13 @@ public class Main {
 		ArrayList<Data> allTrainData = new ArrayList<Data>();
 
 		String testPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed";
+		String outputPath = "/Users/moziliang/Documents/香港留学/2class/1Mutimedia(ROSSITER)/project/voice/all_voice_source_processed3";
+		int fileIndex = 0;
+		
 		File testFolder = new File(testPath);
 		for (File file1 : testFolder.listFiles()) {
-			if (checkIsChar(file1.getName().charAt(0))) {
+			if (checkIsChar(file1.getName().charAt(0)) && (file1.getName().equals("up") || file1.getName().equals("speedup"))) {
+				fileIndex = 0;
 				for (File file2 : file1.listFiles()) {
 					if (checkIsChar(file2.getName().charAt(0))) {
 						String fileName = testPath + "/" + file1.getName() + "/" + file2.getName()
@@ -44,9 +50,22 @@ public class Main {
 							int currentNum = Integer.parseInt(line.replace("\n", ""));
 							currentData[index++] = currentNum;
 						}
-						if (index != NeuralNetwork.inputNum) {
+
+						// fft
+						currentData = VoiceFileTransform2.FFT.fft(currentData);
+
+						if (currentData.length != NeuralNetwork.inputNum) {
 							throw new Exception("index != NeuralNetwork.inputNum");
 						}
+
+						fileName = outputPath + "/" + file1.getName() + "/" + fileIndex + ".txt";
+						BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(fileName)));
+						for (int i = 0; i < currentData.length; i++) {
+							bufferedWriter.write("" + currentData[i] + "\n");
+						}
+						bufferedWriter.close();
+						fileIndex++;
+
 						Data data = new Data();
 						data.dataList = currentData;
 						data.result = NeuralNetwork.outputs.indexOf(file1.getName());
@@ -55,11 +74,11 @@ public class Main {
 				}
 			}
 		}
-		
-//		Data[] dataArray = (Data[]) allTrainData.toArray();
+
+		// Data[] dataArray = (Data[]) allTrainData.toArray();
 		Object[] objectList = allTrainData.toArray();
-		Data[] dataArray =  Arrays.copyOf(objectList,objectList.length,Data[].class);
-		
+		Data[] dataArray = Arrays.copyOf(objectList, objectList.length, Data[].class);
+
 		Random random = new Random();
 		for (int i = 0; i < allTrainData.size() - 1; i++) {
 			int nextInt = i + random.nextInt(allTrainData.size() - i);
@@ -67,8 +86,8 @@ public class Main {
 			dataArray[i] = dataArray[nextInt];
 			dataArray[nextInt] = temp;
 		}
-		allTrainData = new ArrayList<Data> (Arrays.asList(dataArray));
-		
+		allTrainData = new ArrayList<Data>(Arrays.asList(dataArray));
+
 		return allTrainData;
 	}
 

@@ -1,0 +1,44 @@
+package MFCCClassify;
+
+import java.util.Random;
+
+public class MFCCData {
+	public double[][]data;
+	public int result;
+	
+	public double getDifference(double[][]other) throws Exception{
+		if (data[0].length != other[0].length) {
+			throw new Exception("data[0].length != other.length");
+		}
+		
+		double[][]longData = null;
+		double[][]shortData = null;
+		if (data.length > other.length) {
+			longData = data;
+			shortData = other;
+		} else {
+			longData = other;
+			shortData = data;
+		}
+		
+		int lengthDifference = longData.length - shortData.length;
+		//damp lengthDifference data from longData
+		int sliceLength = longData.length / lengthDifference;
+		
+		Random random = new Random();
+		
+		double[][]processedData = new double[shortData.length][];
+		int processedDataIndex = 0;
+		int usedLength = 0;
+		while (true) {
+			int finalLength = sliceLength;
+			if (usedLength + sliceLength > processedData.length) {
+				finalLength = processedData.length - usedLength;
+			}
+			int missdataIndex = usedLength + random.nextInt(finalLength);
+			for (int i = usedLength; i < usedLength + finalLength && i != missdataIndex; i++) {
+				processedData[processedDataIndex++] = longData[i];
+			}
+		}
+	}
+}
